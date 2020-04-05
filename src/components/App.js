@@ -55,10 +55,10 @@ const App = () => {
     class: "dragline hidden",
     d: "M0,0L0,0"
   });
-  var gTransitions = svg.append("g").selectAll("path.transition");
-  var gStates = svg.append("g").selectAll("g.state");
+  let gTransitions = svg.append("g").selectAll("path.transition");
+  let gStates = svg.append("g").selectAll("g.state");
 
-  var transitions = function() {
+  let transitions = function() {
     return states.reduce(function(initial, state) {
       return initial.concat(
         state.transitions.map(function(transition) {
@@ -68,10 +68,10 @@ const App = () => {
     }, []);
   };
 
-  var transformTransitionEndpoints = function(d, i) {
-    var endPoints = d.endPoints();
+  let transformTransitionEndpoints = function(d, i) {
+    let endPoints = d.endPoints();
 
-    var point = [
+    let point = [
       d.type == "start" ? endPoints[0].x : endPoints[1].x,
       d.type == "start" ? endPoints[0].y : endPoints[1].y
     ];
@@ -79,34 +79,33 @@ const App = () => {
     return "translate(" + point + ")";
   };
 
-  var transformTransitionPoints = function(d, i) {
+  let transformTransitionPoints = function(d, i) {
     return "translate(" + [d.x, d.y] + ")";
   };
 
-  var computeTransitionPath = (function() {
-    var line = d3.svg
+  // call one on initial draw
+  const computeTransitionPath = (function() {
+    let line = d3.svg
       .line()
-      .x(function(d, i) {
-        return d.x;
-      })
-      .y(function(d, i) {
-        return d.y;
-      })
+      .x(d => d.x)
+      .y(d => d.y)
       .interpolate("cardinal");
 
+    console.info("computeTransitionPath");
+
     return function(d) {
-      var source = d.source,
-        target =
+      let source = d.source;
+      let  target =
           (d.transition.points.length && d.transition.points[0]) ||
-          d.transition.target,
-        deltaX = target.x - source.x,
-        deltaY = target.y - source.y,
-        dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-        normX = deltaX / dist,
-        normY = deltaY / dist,
-        sourcePadding = radius + 4, //d.left ? 17 : 12,
-        sourceX = source.x + sourcePadding * normX,
-        sourceY = source.y + sourcePadding * normY;
+          d.transition.target;
+        let deltaX = target.x - source.x;
+        let deltaY = target.y - source.y
+        let dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        let normX = deltaX / dist;
+        let normY = deltaY / dist;
+        let sourcePadding = radius + 4; //d.left ? 17 : 12,
+        let sourceX = source.x + sourcePadding * normX;
+        let sourceY = source.y + sourcePadding * normY;
 
       source =
         (d.transition.points.length &&
@@ -118,22 +117,20 @@ const App = () => {
       dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
       normX = deltaX / dist;
       normY = deltaY / dist;
-      var targetPadding = radius + 8; //d.right ? 17 : 12,
-      var targetX = target.x - targetPadding * normX;
-      var targetY = target.y - targetPadding * normY;
+      let targetPadding = radius + 8; //d.right ? 17 : 12,
+      let targetX = target.x - targetPadding * normX;
+      let targetY = target.y - targetPadding * normY;
 
-      var points = [{ x: sourceX, y: sourceY }].concat(d.transition.points, [
+      let points = [{ x: sourceX, y: sourceY }].concat(d.transition.points, [
         { x: targetX, y: targetY }
       ]);
-      var l = line(points);
-
-      return l;
+      return line(points);
     };
   })();
 
-  var dragPoint = d3.behavior.drag().on("drag", function(d, i) {
+  const dragPoint = d3.behavior.drag().on("drag", function(d, i) {
     console.log("transitionmidpoint drag");
-    var gTransitionPoint = d3.select(this);
+    const gTransitionPoint = d3.select(this);
 
     gTransitionPoint.attr("transform", function(d, i) {
       d.x += d3.event.dx;
@@ -156,9 +153,9 @@ const App = () => {
     d3.event.sourceEvent.stopPropagation();
   });
 
-  var renderTransitionMidPoints = function(gTransition) {
+  const renderTransitionMidPoints = function(gTransition) {
     gTransition.each(function(transition) {
-      var transitionPoints = d3
+      const transitionPoints = d3
         .select(this)
         .selectAll("circle.point")
         .data(transition.transition.points, function(d) {
@@ -177,7 +174,7 @@ const App = () => {
           dblclick: function(d) {
             console.log("transitionmidpoint dblclick");
 
-            var gTransition = d3.select(d3.event.target.parentElement),
+            const gTransition = d3.select(d3.event.target.parentElement),
               transition = gTransition.datum(),
               index = transition.transition.points.indexOf(d);
 
@@ -203,20 +200,20 @@ const App = () => {
     });
   };
 
-  var renderTransitionPoints = function(gTransition) {
+  const renderTransitionPoints = function(gTransition) {
     gTransition.each(function(d) {
-      var endPoints = function() {
-        var source = d.source,
-          target =
+      const endPoints = function() {
+        let source = d.source;
+        let target =
             (d.transition.points.length && d.transition.points[0]) ||
-            d.transition.target,
-          deltaX = target.x - source.x,
-          deltaY = target.y - source.y,
-          dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-          normX = deltaX / dist,
-          normY = deltaY / dist,
-          sourceX = source.x + radius * normX,
-          sourceY = source.y + radius * normY;
+            d.transition.target;
+        let  deltaX = target.x - source.x;
+        let  deltaY = target.y - source.y;
+        let  dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        let  normX = deltaX / dist;
+        let  normY = deltaY / dist;
+        let  sourceX = source.x + radius * normX;
+        let  sourceY = source.y + radius * normY;
 
         source =
           (d.transition.points.length &&
@@ -228,9 +225,9 @@ const App = () => {
         dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         normX = deltaX / dist;
         normY = deltaY / dist;
-        var targetPadding = radius + 8; //d.right ? 17 : 12,
-        var targetX = target.x - radius * normX;
-        var targetY = target.y - radius * normY;
+        //let targetPadding = radius + 8; //d.right ? 17 : 12,
+        let targetX = target.x - radius * normX;
+        let targetY = target.y - radius * normY;
 
         return [
           { x: sourceX, y: sourceY },
@@ -238,7 +235,7 @@ const App = () => {
         ];
       };
 
-      var transitionEndpoints = d3
+      let transitionEndpoints = d3
         .select(this)
         .selectAll("circle.endpoint")
         .data([
@@ -260,8 +257,8 @@ const App = () => {
     });
   };
 
-  var renderTransitions = function() {
-    var gTransition = gTransitions
+  const renderTransitions = function() {
+    const gTransition = gTransitions
       .enter()
       .append("g")
       .attr({
@@ -293,9 +290,9 @@ const App = () => {
       })
       .on({
         dblclick: function(d, i) {
-          gTransition = d3.select(d3.event.target.parentElement);
+          let gTransition = d3.select(d3.event.target.parentElement);
           if (d3.event.ctrlKey) {
-            var p = d3.mouse(this);
+            let p = d3.mouse(this);
 
             gTransition.classed("selected", true);
             d.transition.points.push({ x: p[0], y: p[1] });
@@ -305,9 +302,9 @@ const App = () => {
               d: computeTransitionPath
             });
           } else {
-            var gTransition = d3.select(d3.event.target.parentElement),
-              transition = gTransition.datum(),
-              index = transition.source.transitions.indexOf(
+             gTransition = d3.select(d3.event.target.parentElement);
+              let transition = gTransition.datum();
+              let index = transition.source.transitions.indexOf(
                 transition.transition
               );
 
@@ -330,8 +327,8 @@ const App = () => {
     gTransitions.exit().remove();
   };
 
-  var renderStates = function() {
-    var gState = gStates
+  const renderStates = function() {
+    const gState = gStates
       .enter()
       .append("g")
       .attr({
@@ -352,7 +349,7 @@ const App = () => {
         mousedown: function(d) {
           console.log("state circle outer mousedown");
           // (startState = d), (endState = undefined);
-          var a = (function() {
+          const a = (function() {
               startState = d;
               endState = undefined;
             })();
@@ -391,7 +388,7 @@ const App = () => {
         click: function(d, i) {
           console.log("state circle inner mousedown");
 
-          var e = d3.event,
+          const e = d3.event,
             g = this.parentNode,
             isSelected = d3.select(g).classed("selected");
 
@@ -416,9 +413,9 @@ const App = () => {
         },
         dblclick: function() {
           console.log("state circle outer dblclick");
-          var d = d3.select(this.parentNode).datum();
+          const d = d3.select(this.parentNode).datum();
 
-          var index = states.indexOf(d);
+          const index = states.indexOf(d);
           states.splice(index, 1);
 
           // remove transitions targeting the removed state
@@ -452,8 +449,8 @@ const App = () => {
     gStates.exit().remove();
   };
 
-  var startState, endState;
-  var drag = d3.behavior
+  let startState, endState;
+  const drag = d3.behavior
     .drag()
     .on("drag", function(d, i) {
       console.log("drag");
@@ -480,8 +477,8 @@ const App = () => {
 
       // move transistion points of each transition
       // where transition target is also in selection
-      var selectedStates = d3.selectAll("g.state.selected").data();
-      var affectedTransitions = selectedStates
+      const selectedStates = d3.selectAll("g.state.selected").data();
+      const affectedTransitions = selectedStates
         .reduce(function(array, state) {
           return array.concat(state.transitions);
         }, [])
@@ -489,8 +486,8 @@ const App = () => {
           return selectedStates.indexOf(transition.target) != -1;
         });
       affectedTransitions.forEach(function(transition) {
-        for (var i = transition.points.length - 1; i >= 0; i--) {
-          var point = transition.points[i];
+        for (let i = transition.points.length - 1; i >= 0; i--) {
+          const point = transition.points[i];
           point.x += d3.event.dx;
           point.y += d3.event.dy;
         }
@@ -544,7 +541,7 @@ const App = () => {
           d3.selectAll("g.selected").classed("selected", false);
         }
 
-        var p = d3.mouse(this);
+        const p = d3.mouse(this);
 
         svg.append("rect").attr({
           rx: 6,
@@ -559,11 +556,11 @@ const App = () => {
     },
     mousemove: function() {
       //console.log( "mousemove");
-      var p = d3.mouse(this),
+      const p = d3.mouse(this),
         s = svg.select("rect.selection");
 
       if (!s.empty()) {
-        var d = {
+        const d = {
             x: parseInt(s.attr("x"), 10),
             y: parseInt(s.attr("y"), 10),
             width: parseInt(s.attr("width"), 10),
@@ -613,7 +610,7 @@ const App = () => {
           "M" + startState.x + "," + startState.y + "L" + p[0] + "," + p[1]
         );
 
-        var state = d3.select("g.state .inner.hover");
+        const state = d3.select("g.state .inner.hover");
         endState = (!state.empty() && state.data()[0]) || undefined;
       }
     },
@@ -636,7 +633,7 @@ const App = () => {
     },
     dblclick: function() {
       console.log("dblclick");
-      var p = d3.mouse(this);
+      const p = d3.mouse(this);
 
       if (d3.event.target.tagName == "svg") {
         states.push({ x: p[0], y: p[1], label: "tst", transitions: [] });
@@ -653,7 +650,7 @@ const App = () => {
     });
     renderStates();
 
-    var _transitions = transitions();
+    const _transitions = transitions();
     gTransitions = gTransitions.data(_transitions, function(d) {
       return _transitions.indexOf(d);
     });
